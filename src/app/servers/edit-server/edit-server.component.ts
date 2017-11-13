@@ -30,8 +30,8 @@ export class EditServerComponent implements OnInit, CanComponentDeactivate {
       this.allowEdit = qparams['allowEdit'] === '1' ? true : false;
     });
     // this.route.fragment.subscribe((fparams: Params) => { });
-
-    this.server = this.serversService.getServer(1);
+    const id = +this.route.snapshot.params['id'];
+    this.server = this.serversService.getServer(id);
     this.serverName = this.server.name;
     this.serverStatus = this.server.status;
   }
@@ -42,6 +42,14 @@ export class EditServerComponent implements OnInit, CanComponentDeactivate {
     this.router.navigate(['../'], { relativeTo: this.route });
   }
   canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
-    return this.changesSaved === true
+    if (!this.allowEdit) {
+      return true;
+    }
+    if ((this.serverName !== this.server.name || this.serverStatus !== this.server.status) && !this.changesSaved) {
+      return confirm('Do you want to discard the chnages?');
+    } else {
+      return true;
+    }
   }
 }
+
